@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distcc
+  labels:
+    app: distcc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: distcc
+  template:
+    metadata:
+      labels:
+        app: distcc
+    spec:
+      containers:
+      - name: distcc
+        image: cinaq/distcc:latest
+        env:
+        - name: ALLOW
+          value: 10.0.0.0/8
+        volumeMounts:
+        - mountPath: /cache
+          name: cache-volume
+      volumes:
+      - name: cache-volume
+        emptyDir: {}
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: distcc
+spec:
+  selector:
+    app: distcc
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 3632
+    targetPort: 3632
